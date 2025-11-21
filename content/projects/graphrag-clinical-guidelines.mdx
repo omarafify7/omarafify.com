@@ -1,0 +1,235 @@
+---
+title: "GraphRAG Clinical Guideline Assistant"
+description: "Graph-based retrieval system that turns long clinical guidelines into a searchable knowledge graph with cited, context-aware answers."
+date: "2025-10-27"
+published: true
+url: ""
+repository: "https://github.com/ianfv/elec_498a_graph_rag"
+tier: "A"
+featured: true
+category:
+  - ml
+  - cloud
+  - backend
+  - rag
+  - systems
+techStack:
+  - Python
+  - FastAPI
+  - Microsoft GraphRAG
+  - Neo4j
+  - LangChain
+  - AWS ECS Fargate
+  - Amazon API Gateway
+  - Amazon S3
+  - Amazon DynamoDB
+  - AWS SQS
+  - AWS CloudWatch
+  - AWS CDK
+  - Docker
+  - DeepEval
+---
+
+# GraphRAG Clinical Guideline Assistant
+
+## Overview
+
+The GraphRAG Clinical Guideline Assistant is a capstone project that adapts Microsoft’s GraphRAG approach to the domain of clinical healthcare guidelines.  
+Instead of answering questions directly like a typical chatbot, it focuses on **query-to-context retrieval**: ingesting guideline documents, constructing a knowledge graph, and returning cited, structured evidence via a secure API.
+
+The system targets complex, high-stakes queries where traditional vector RAG falls short, providing clinicians and researchers with more precise, interpretable, and trustworthy retrieval over long guideline documents.
+
+---
+
+## Problem
+
+Clinical health guidelines are long, dense, and written in highly specialized language.  
+Practitioners often need to answer nuanced questions such as:
+
+> “How should insulin dosage be titrated for adults with type 2 diabetes and chronic kidney disease?”
+
+Vector-based RAG systems typically embed passages into a high-dimensional space and retrieve nearest neighbours. In medicine, however, guidelines are semantically similar and cluster tightly, which has several issues:
+
+- retrieval degenerates to “close enough” answers instead of precise recommendations  
+- local chunks are retrieved without understanding **global structure**, such as relationships between comorbidities, treatments, and contraindications  
+- hallucinations or partially correct answers can have **real patient safety risks**
+
+At the same time, existing GraphRAG implementations are mostly research prototypes. They rarely ship with:
+
+- production-ready APIs  
+- clear CRUD semantics on the knowledge graph  
+- cloud deployment, authentication, and cost controls  
+- evaluation frameworks that compare against baseline vector RAG
+
+This project aims to close that gap.
+
+---
+
+## Solution
+
+The team proposes a **GraphRAG-based clinical guideline retrieval system** that:
+
+- ingests guideline documents into a **knowledge graph** of entities, relationships, and community summaries  
+- exposes a **REST API** with `build`, `query`, and `fetch` endpoints  
+- runs on a **cloud-native AWS architecture** with secure, authenticated access  
+- is evaluated against a **baseline vector RAG** using an LLM-as-a-judge framework
+
+Key design principles:
+
+- **Query-to-context, not query-to-answer** – always return cited, inspectable context and metadata.
+- **Graph-first representation** – model entities and relationships explicitly for better global reasoning.
+- **Production-minded** – treat this like a small SaaS service: CI/CD, observability, cost, and compliance are first-class constraints.
+- **Reproducible and extensible** – everything from infra (CDK) to evaluation (DeepEval) is scripted and version-controlled.
+
+---
+
+## Architecture
+
+At a high level, the system is composed of four layers:
+
+### 1. Ingestion & Graph Build
+
+- Clinical guidelines (e.g., Diabetes Canada, WHO, NCCN) are stored as PDFs or text in **Amazon S3**.
+- Ingestion jobs:
+  - parse documents
+  - normalize sections and headers
+  - extract entities, relationships, and claims via the **Microsoft GraphRAG engine**
+  - attach citation metadata to nodes and edges
+- The resulting structure is persisted into **Neo4j** as a knowledge graph.
+- All graph operations follow full **CRUD** semantics to support:
+  - creating new graphs  
+  - updating or enriching existing graphs  
+  - reading nodes, subgraphs, and metadata  
+  - deleting obsolete or erroneous data
+
+### 2. GraphRAG Retrieval
+
+- A **FastAPI** microservice exposes a set of endpoints:
+  - `POST /build` – trigger ingestion and graph construction for one or more documents.
+  - `POST /query` – answer local or global questions using GraphRAG.
+  - `GET /fetch` – inspect specific nodes, communities, or summaries.
+- The retrieval logic routes between:
+  - **local queries** (focused, node-level queries) with a target latency of ≤ 12 ± 3 seconds  
+  - **global queries** (multi-hop, community-level summaries) with a target latency of ≤ 30 ± 8 seconds
+- Query execution combines:
+  - Cypher queries over Neo4j  
+  - prompt assembly for the LLM  
+  - response post-processing and citation injection
+
+### 3. Cloud & Infrastructure
+
+- The system runs on a **modular AWS stack**, defined in **AWS CDK**:
+  - **ECS Fargate** – hosts containerized FastAPI and ingestion workers
+  - **Amazon API Gateway** – provides the public REST entry point
+  - **S3** – stores raw guideline documents and derived artifacts
+  - **DynamoDB** – caches query logs and community summaries
+  - **SQS** – decouples long-running ingestion and evaluation jobs
+  - **AWS Bedrock / SageMaker** – manages LLM inference for summarization and reasoning
+  - **CloudWatch + CloudTrail** – monitoring, metrics, and audit logs
+  - **KMS, Macie, WAF, IAM** – encryption, data loss prevention, web firewall, and access control
+
+- CI/CD:
+  - **GitHub Actions** builds and tests the codebase on every pull request.
+  - **AWS CodeBuild** builds container images and pushes them to **ECR**.
+  - CDK deploys updates to ECS and other infrastructure components.
+
+### 4. Evaluation & Monitoring
+
+- **DeepEval** provides LLM-as-a-judge metrics:
+  - faithfulness
+  - relevance
+  - citation accuracy
+  - comprehensiveness
+- The GraphRAG system is compared to a **baseline vector RAG**, with the goal that GraphRAG wins in >60% of pairwise evaluations while achieving target metric thresholds.
+- **CloudWatch** monitors:
+  - P95 latency for local vs global queries
+  - graph size (nodes/edges)
+  - error rates and uptime (≥90% availability)
+
+---
+
+## Implementation Details
+
+Some highlights of the implementation:
+
+- **GraphRAG Engine**
+  - Leverages Microsoft’s GraphRAG library for entity and relation extraction.
+  - Constructs hierarchical communities to capture global structure.
+  - Stores both node-level and community-level summaries with associated citations.
+
+- **Graph Storage & CRUD**
+  - Neo4j models entities (e.g., conditions, treatments, risk factors) and relationships (e.g., “guides”, “contraindicated_with”).
+  - CRUD operations are implemented as a Python library so other services can reuse them.
+  - Parquet exports/imports (optional requirement) support graph snapshotting for experiments.
+
+- **API Design**
+  - Built with **FastAPI**, providing typed request/response models via Pydantic.
+  - OpenAPI documentation is auto-generated and part of the handoff to the client.
+  - JWT + IAM secure endpoints for future integration in clinical environments.
+
+- **Infrastructure-as-Code**
+  - AWS resources are defined in **AWS CDK (Python)** for reproducible deployments.
+  - CI/CD pipeline:
+    - GitHub Actions → CodeBuild → ECS Fargate
+  - Each deployment uses pinned image tags to avoid drift between environments.
+
+- **Testing Strategy**
+  - Unit tests:
+    - ingestion parsers & cleaners
+    - graph creation utilities
+    - query routing and prompt assembly
+  - Component tests:
+    - S3 → Graph build → Neo4j → query
+    - SQS job processing
+  - End-to-end tests:
+    - document upload → build → query → cited response
+  - Non-functional tests:
+    - latency, throughput, graph capacity, uptime, cost guardrails
+    - security properties (auth required, encryption, residency in Canadian regions)
+
+---
+
+## Validation & Success Criteria
+
+The system is considered successful if it meets the key specifications from the blueprint:
+
+- **Functional**
+  - Full CRUD on the knowledge graph.
+  - Ingestion pipeline that can process 1–2 guidelines of 100k–300k tokens each.
+  - Queries return context with machine-readable citation metadata.
+
+- **Interface**
+  - REST API with `query`, `fetch`, `build` (and optionally `index`) endpoints.
+  - Deployed to AWS with JWT + IAM-based authentication.
+  - Complete developer documentation (Markdown + OpenAPI).
+
+- **Performance**
+  - Local queries: ≤ 12 ± 3 seconds.
+  - Global queries: ≤ 30 ± 8 seconds.
+  - Graph capacity: ~30k nodes and 100k edges (±10k / ±30k).
+  - Reliability: ≥ 90% availability during testing.
+  - Data residency: 100% processing on Canadian servers for compliance.
+
+- **Evaluation**
+  - LLM-as-a-judge using DeepEval for faithfulness, relevance, and citation accuracy.
+  - GraphRAG outperforms baseline vector RAG in a majority of test queries.
+
+---
+
+## What I Learned
+
+- How to translate a **research-grade GraphRAG paper** into a production-oriented system design.
+- How to design **microservice architectures on AWS** that balance performance, cost, and security.
+- Practical considerations of **clinical guideline retrieval**, including interpretability, citation requirements, and safety.
+- How to structure **validation and testing** from unit tests through to LLM-as-a-judge evaluation.
+- How to coordinate a multi-member team using **Agile sprints, CI/CD, and shared documentation**.
+
+---
+
+## Future Improvements
+
+- Add an **index endpoint** to ingest new documents incrementally.
+- Build a **lightweight GUI** for clinicians to type queries and inspect graph-backed responses.
+- Extend evaluation to more clinical domains and additional baselines.
+- Experiment with **fine-tuned domain-specific models** for entity and relation extraction.
+- Harden for real clinical use: PHI-aware pipelines, stricter compliance checks, and multi-tenant security patterns.

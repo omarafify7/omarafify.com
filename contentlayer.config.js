@@ -3,6 +3,7 @@ import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypeMermaid from "./lib/rehype-mermaid.js";
 
 /** @type {import('contentlayer/source-files').ComputedFields} */
 const computedFields = {
@@ -23,26 +24,41 @@ export const Project = defineDocumentType(() => ({
 
 	fields: {
 		published: {
-			type: "boolean",
+		  type: "boolean",
 		},
 		title: {
-			type: "string",
-			required: true,
+		  type: "string",
+		  required: true,
 		},
 		description: {
-			type: "string",
-			required: true,
+		  type: "string",
+		  required: true,
 		},
 		date: {
-			type: "date",
+		  type: "date",
 		},
 		url: {
-			type: "string",
+		  type: "string",
 		},
 		repository: {
-			type: "string",
+		  type: "string",
 		},
-	},
+		// NEW FIELDS
+		tier: {
+		  type: "string", // "A" | "B" | "C" (we'll enforce convention in code, not schema)
+		},
+		category: {
+		  type: "list",
+		  of: { type: "string" }, // e.g. ["ml", "cloud", "backend"]
+		},
+		techStack: {
+		  type: "list",
+		  of: { type: "string" }, // e.g. ["Python", "AWS", "GraphRAG"]
+		},
+		featured: {
+		  type: "boolean",
+		},
+	  },	  
 	computedFields,
 }));
 
@@ -69,6 +85,7 @@ export default makeSource({
 		remarkPlugins: [remarkGfm],
 		rehypePlugins: [
 			rehypeSlug,
+			rehypeMermaid, // Must run BEFORE rehype-pretty-code
 			[
 				rehypePrettyCode,
 				{

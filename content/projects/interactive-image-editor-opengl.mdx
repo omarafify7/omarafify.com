@@ -1,0 +1,68 @@
+---
+title: "Interactive Image Editor with OpenGL"
+description: "A high-performance, GPU-accelerated image editing application built with OpenGL, featuring real-time filters, transformations, and compositing operations with a modern graphical interface."
+date: "2025-11-05"
+published: true
+url: ""
+repository: ""
+tier: "A"
+featured: false
+category:
+  - systems
+  - graphics
+techStack:
+  - "C++"
+  - OpenGL
+  - GLSL
+  - Qt
+  - CMake
+---
+
+# Interactive Image Editor with OpenGL
+
+## Overview
+
+A desktop image editing application that leverages GPU acceleration through OpenGL to provide real-time image processing, filtering, and manipulation. The system demonstrates low-level graphics programming techniques, efficient memory management, and modern OpenGL shader-based rendering pipelines for professional-grade image editing capabilities.
+
+## Problem
+
+Traditional CPU-based image processing is slow for large images and complex operations, making interactive editing frustrating. Existing solutions either lack performance or require expensive commercial licenses. A GPU-accelerated approach can provide real-time feedback for professional workflows.
+
+## Solution
+
+The application uses OpenGL compute shaders and fragment shaders to offload image processing operations to the GPU, enabling real-time application of filters, transformations, and compositing effects. The architecture supports non-destructive editing through layer-based workflows.
+
+## Architecture
+
+- OpenGL-based rendering engine with support for modern GLSL shaders
+- Layer management system for non-destructive editing workflows
+- GPU-accelerated filter pipeline for real-time image processing
+- Efficient texture management and memory handling for large images
+- Qt-based user interface providing responsive interaction
+- Plugin architecture for extensible filter and effect support
+
+## Implementation Details
+
+- Custom GLSL shaders for common image operations (blur, sharpen, color correction)
+- OpenGL compute shaders for parallel pixel processing
+- Efficient texture upload/download strategies to minimize CPU-GPU transfers
+- Multi-threaded architecture separating UI from rendering pipeline
+- Memory pool management for handling large images without fragmentation
+- Support for various image formats and color spaces
+
+## What I Learned
+
+- GPU programming requires different mental models than CPU programming
+- OpenGL state management and resource lifecycle are critical for performance
+- Shader optimization techniques significantly impact rendering speed
+- Memory bandwidth between CPU and GPU is often the bottleneck
+- Modern OpenGL features (compute shaders, texture arrays) enable powerful optimizations
+
+## Future Improvements
+
+- Support for GPU-accelerated machine learning filters (style transfer, super-resolution)
+- Multi-GPU support for processing very large images
+- Real-time collaboration features for shared editing sessions
+- Advanced compositing modes and blend operations
+- Integration with color management systems for professional workflows
+

@@ -1,0 +1,589 @@
+---
+title: "Serverless Legal RAG Chatbot for Ontario Real Estate"
+description: "A serverless RAG chatbot that uses GPT-4 Turbo and Pinecone to answer Ontario real estate legal questions from real documents and FAQs."
+date: "2025-02-01"
+published: true
+url: "https://chat.philer.ai/"
+repository: "omarafify7/Serverless-Legal-RAG-Chatbot-for-Ontario-Real-Estate"
+tier: "A"
+featured: true
+category:
+  - ml
+  - cloud
+  - backend
+techStack:
+  - Python
+  - TypeScript
+  - React
+  - Tailwind CSS
+  - AWS Lambda
+  - AWS API Gateway
+  - AWS S3
+  - Pinecone
+  - OpenAI API
+  - LangChain
+  - Docker
+  - pytest
+---
+
+
+
+# Serverless Legal RAG Chatbot for Ontario Real Estate  
+AI-powered legal assistant for Ontario real estate, built with a fully serverless RAG architecture.
+
+## Overview
+This project is a production-ready Retrieval-Augmented Generation (RAG) chatbot that answers questions about Ontario real estate legal documents. It combines vector similarity search with GPT-4 to deliver accurate, context-aware guidance based on both formal documents and FAQs, all deployed on a serverless AWS stack.
+
+The system includes a modern React frontend, a containerized AWS Lambda backend, a Pinecone vector database, and an ingestion pipeline that processes PDFs/DOCX from S3 into searchable embeddings.
+
+## Features
+- **Legal RAG assistant for Ontario real estate** – answers questions about closings, refinancing, and other real estate topics using real legal documents and FAQs.
+- **Dual-index retrieval** – queries both a legal-documents index and an FAQ index in Pinecone, then ranks and combines results for richer context.
+- **GPT-4 Turbo responses with context** – generates responses using GPT-4 Turbo conditioned on retrieved document chunks and conversation history.
+- **Document ingestion pipeline** – extracts text from PDF/DOCX in S3, chunks it, embeds it, and upserts vectors into Pinecone.
+- **Multi-turn chat** – tracks conversation history to support follow-up questions and more natural interactions.
+- **Conversation persistence** – writes full conversation logs to S3 for auditing, debugging, or analytics.
+- **Serverless deployment** – backend runs on AWS Lambda behind API Gateway, with automatic scaling and pay-per-use pricing.
+- **Type-safe frontend** – React + TypeScript frontend with Tailwind styling and markdown rendering for assistant responses.
+- **Testing & tooling** – pytest-based test suites, Black, isort, mypy, and dev requirements for a production-style workflow.
+
+## Architecture
+
+At a high level, the system consists of:
+
+- **Frontend (`my-chatbot-frontend/`)**
+  - `ChatApp.tsx`: main chat container managing state and API calls.
+  - `components/ChatMessages.tsx`: renders user and assistant messages with markdown.
+  - `components/ChatInput.tsx`: input + send UI.
+  - `services/api.ts`: service layer for calling the `/chatbot` API.
+  - Deployed as a static site on **AWS S3**.
+
+- **Backend (root `lambda_function.py`)**
+  - `lambda_handler`: AWS Lambda entry point invoked by **API Gateway**.
+  - `retrieve_relevant_chunks_from_pinecone`: generates a query embedding, queries two Pinecone indexes (`ontario-docs`, `ontario-faqs`), and returns top-K context chunks.
+  - `generate_response`: constructs the RAG prompt using context + chat history and calls **GPT-4 Turbo**.
+  - `chatbot_interface`: orchestrates the chat flow for a single request.
+  - `save_conversation_history`: persists formatted conversation logs to **S3** under `ChatBot_History/`.
+
+- **Data ingestion pipeline (`database/`)**
+  - `doc_loader.py`: pulls PDF/DOCX from S3 (`raw_docs/`), extracts text, chunks with `RecursiveCharacterTextSplitter`, embeds with `text-embedding-3-small`, and upserts to Pinecone.
+  - `constants.py`: central config for embedding models, chunk sizes, index names, and other parameters.
+  - `index_setup.py`: one-time script to create the Pinecone indexes.
+  - `query_pinecone.py`: standalone query utility using LangChain for manual testing.
+  - `database/tests/`: unit tests for the ingestion pipeline.
+
+- **Docs & deployment**
+  - `docs/architecture.md`: deep dive into the system design.
+  - `docs/api.md`: API contract and payload shapes.
+  - `deployment/lambda/package.sh`: packaging script for shipping Lambda with dependencies.
+
+### Architecture Diagram (Mermaid)
+
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        USER[User Browser]
+        UI[React Frontend<br/>TypeScript + Tailwind]
+    end
+    
+    subgraph "AWS Cloud"
+        subgraph "API Layer"
+            S3_FRONTEND[S3 Static Hosting<br/>Frontend Assets]
+            ROUTE53[Route53<br/>DNS]
+            APIGW[API Gateway<br/>POST /chatbot]
+        end
+        
+        subgraph "Compute Layer"
+            LAMBDA[Lambda Function<br/>lambda_function.py<br/>Python 3.8+]
+        end
+        
+        subgraph "Storage Layer"
+            S3_DOCS[S3 Bucket<br/>raw_docs/<br/>PDF/DOCX Files]
+            S3_HISTORY[S3 Bucket<br/>ChatBot_History/<br/>Conversation Logs]
+        end
+    end
+    
+    subgraph "External Services"
+        OPENAI[OpenAI API]
+        OPENAI_EMB[text-embedding-3-small<br/>1536 dimensions]
+        OPENAI_GPT[GPT-4 Turbo<br/>Response Generation]
+        
+        PINECONE[Pinecone Vector DB]
+        INDEX_DOCS[ontario-docs Index<br/>Legal Documents<br/>Cosine Similarity]
+        INDEX_FAQS[ontario-faqs Index<br/>FAQ Pairs<br/>Cosine Similarity]
+    end
+    
+    subgraph "Data Pipeline"
+        LOADER[doc_loader.py<br/>Document Processor]
+        CHUNKER[Text Chunker<br/>500 chars, 100 overlap]
+        EMBEDDER[Embedding Generator]
+    end
+    
+    USER -->|HTTPS| UI
+    UI -->|HTTPS| S3_FRONTEND
+    ROUTE53 -.->|DNS| S3_FRONTEND
+    UI -->|POST Request| APIGW
+    APIGW -->|Invoke| LAMBDA
+    
+    LAMBDA -->|Generate Embedding| OPENAI_EMB
+    LAMBDA -->|Query Vectors| INDEX_DOCS
+    LAMBDA -->|Query Vectors| INDEX_FAQS
+    LAMBDA -->|Generate Response| OPENAI_GPT
+    LAMBDA -->|Save History| S3_HISTORY
+    
+    OPENAI_EMB -.->|Part of| OPENAI
+    OPENAI_GPT -.->|Part of| OPENAI
+    INDEX_DOCS -.->|Part of| PINECONE
+    INDEX_FAQS -.->|Part of| PINECONE
+    
+    S3_DOCS -->|Read PDFs/DOCX| LOADER
+    LOADER -->|Extract Text| CHUNKER
+    CHUNKER -->|Generate Embeddings| EMBEDDER
+    EMBEDDER -->|Store Vectors| INDEX_DOCS
+    EMBEDDER -->|Store Vectors| INDEX_FAQS
+    
+    style UI fill:#61dafb,stroke:#333,stroke-width:2px
+    style OPENAI fill:#10a37f,stroke:#333,stroke-width:2px
+    style PINECONE fill:#5c4ee5,stroke:#333,stroke-width:2px
+    style S3_DOCS fill:#569a31,stroke:#333,stroke-width:2px
+    style S3_HISTORY fill:#569a31,stroke:#333,stroke-width:2px
+```
+
+### Component Interactions
+
+```mermaid
+graph LR
+    subgraph "Frontend Components"
+        APP[App.tsx<br/>Root Component]
+        CHAT[ChatApp.tsx<br/>Main Chat Logic]
+        MSGS[ChatMessages.tsx<br/>Display Messages]
+        INPUT[ChatInput.tsx<br/>User Input]
+        API_SVC[api.ts<br/>API Service Layer]
+    end
+    
+    subgraph "Lambda Components"
+        HANDLER[lambda_handler<br/>Entry Point]
+        INTERFACE[chatbot_interface<br/>Orchestrator]
+        GENERATE[generate_response<br/>RAG Logic]
+        RETRIEVE[retrieve_relevant_chunks<br/>Vector Search]
+        SAVE[save_conversation_history<br/>S3 Persistence]
+    end
+    
+    subgraph "Database Components"
+        CONSTANTS[constants.py<br/>Configuration]
+        DOC_LOADER[doc_loader.py<br/>Ingestion Pipeline]
+        INDEX_SETUP[index_setup.py<br/>One-time Setup]
+        QUERY_UTIL[query_pinecone.py<br/>Query Utility]
+    end
+    
+    APP --> CHAT
+    CHAT --> MSGS
+    CHAT --> INPUT
+    CHAT --> API_SVC
+    
+    API_SVC -->|HTTP POST| HANDLER
+    
+    HANDLER --> INTERFACE
+    INTERFACE --> GENERATE
+    GENERATE --> RETRIEVE
+    HANDLER --> SAVE
+    
+    RETRIEVE -.->|Uses config| CONSTANTS
+    GENERATE -.->|Uses config| CONSTANTS
+    
+    DOC_LOADER -.->|Uses config| CONSTANTS
+    INDEX_SETUP -.->|Uses config| CONSTANTS
+    QUERY_UTIL -.->|Uses config| CONSTANTS
+    
+    style CONSTANTS fill:#87CEEB
+```
+
+### Frontend State Management
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle: Page Load
+    
+    Idle --> Typing: User types message
+    Typing --> Idle: User clears input
+    Typing --> Sending: User presses Enter/Send
+    
+    Sending --> WaitingForResponse: POST request sent
+    
+    WaitingForResponse --> DisplayResponse: 200 OK received
+    WaitingForResponse --> ErrorState: Error occurred
+    
+    DisplayResponse --> Idle: Response displayed
+    ErrorState --> Idle: Error shown, user can retry
+    
+    note right of WaitingForResponse
+        - Show typing indicator
+        - Disable input
+        - Display user message
+    end note
+    
+    note right of DisplayResponse
+        - Parse markdown
+        - Update chat history
+        - Scroll to bottom
+        - Re-enable input
+    end note
+```
+
+### Deployment Architecture
+
+```mermaid
+graph TB
+    subgraph "Development"
+        DEV_CODE[Local Code Changes]
+        DEV_TEST[Run Tests Locally]
+    end
+    
+    subgraph "CI/CD Pipeline"
+        GIT[Git Repository]
+        BUILD_FE[Build Frontend<br/>npm run build]
+        BUILD_LAMBDA[Package Lambda<br/>./package.sh]
+    end
+    
+    subgraph "AWS Production"
+        subgraph "Frontend Deployment"
+            S3_BUCKET[S3 Bucket<br/>Static Website Hosting]
+            CLOUDFRONT[CloudFront CDN<br/>Optional]
+            ROUTE53[Route53<br/>Custom Domain]
+        end
+        
+        subgraph "Backend Deployment"
+            LAMBDA_FUNC[Lambda Function<br/>Containerized]
+            APIGW[API Gateway<br/>HTTP API]
+            IAM[IAM Role<br/>S3 Access]
+        end
+        
+        subgraph "Environment Config"
+            SECRETS[Lambda Environment Variables<br/>OPENAI_API_KEY<br/>PINECONE_API_KEY]
+        end
+    end
+    
+    DEV_CODE --> DEV_TEST
+    DEV_TEST --> GIT
+    
+    GIT -->|Push to main| BUILD_FE
+    GIT -->|Push to main| BUILD_LAMBDA
+    
+    BUILD_FE -->|aws s3 sync| S3_BUCKET
+    S3_BUCKET --> CLOUDFRONT
+    CLOUDFRONT --> ROUTE53
+    
+    BUILD_LAMBDA -->|aws lambda update-function-code| LAMBDA_FUNC
+    LAMBDA_FUNC --> APIGW
+    LAMBDA_FUNC -.->|Assumes| IAM
+    LAMBDA_FUNC -.->|Reads| SECRETS
+    
+    style DEV_CODE fill:#569a31
+    style S3_BUCKET fill:#569a31
+    
+```
+
+### Query Flow Summary
+
+1. User enters a question in the React frontend.
+2. Frontend sends a POST request to the API Gateway `/chatbot` endpoint.
+3. Lambda:
+
+   * Creates a query embedding using `text-embedding-3-small`.
+   * Queries both Pinecone indexes (`ontario-docs`, `ontario-faqs`) with `top_k` results.
+   * Combines and re-ranks results, selecting the best chunks as context.
+   * Calls GPT-4 Turbo with a system prompt, chat history, and context.
+   * Saves the conversation to S3 and returns the assistant reply plus updated history.
+4. Frontend renders the response as markdown and updates the chat history in the UI.
+
+#### Query Processing Flow (Detailed)
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Frontend
+    participant APIGateway
+    participant Lambda
+    participant OpenAI_Emb as OpenAI<br/>Embeddings
+    participant Pinecone_Docs as Pinecone<br/>ontario-docs
+    participant Pinecone_FAQs as Pinecone<br/>ontario-faqs
+    participant OpenAI_GPT as OpenAI<br/>GPT-4
+    participant S3
+    
+    User->>Frontend: Type question
+    Frontend->>APIGateway: POST /chatbot<br/>{message, chat_history, session_id}
+    APIGateway->>Lambda: Invoke lambda_handler()
+    
+    activate Lambda
+    Lambda->>Lambda: Parse request body
+    Lambda->>Lambda: validate input
+    
+    Note over Lambda,OpenAI_Emb: Step 1: Generate Query Embedding
+    Lambda->>OpenAI_Emb: create(input=query,<br/>model=text-embedding-3-small)
+    OpenAI_Emb-->>Lambda: [0.1, 0.2, ..., 0.5]<br/>(1536 dimensions)
+    
+    Note over Lambda,Pinecone_FAQs: Step 2: Query Vector Databases (Parallel)
+    par Query Both Indexes
+        Lambda->>Pinecone_Docs: query(vector, top_k=5)
+        Pinecone_Docs-->>Lambda: matches with "text" metadata
+    and
+        Lambda->>Pinecone_FAQs: query(vector, top_k=5)
+        Pinecone_FAQs-->>Lambda: matches with "answer" metadata
+    end
+    
+    Lambda->>Lambda: Combine results<br/>Sort by score<br/>Take top 5
+    
+    Note over Lambda,OpenAI_GPT: Step 3: Generate Response with Context
+    Lambda->>Lambda: Build prompt:<br/>system + history + context
+    Lambda->>OpenAI_GPT: chat.completions.create(<br/>model=gpt-4-turbo,<br/>messages=[...])
+    OpenAI_GPT-->>Lambda: Generated response text
+    
+    Lambda->>Lambda: Update chat_history
+    
+    Note over Lambda,S3: Step 4: Save Conversation
+    Lambda->>S3: put_object(<br/>bucket=philerchatbot,<br/>key=ChatBot_History/session_id.txt)
+    S3-->>Lambda: Success
+    
+    Lambda-->>APIGateway: {reply, chat_history, session_id}
+    deactivate Lambda
+    
+    APIGateway-->>Frontend: HTTP 200 OK
+    Frontend->>Frontend: Display response<br/>with markdown rendering
+    Frontend-->>User: Show AI response
+```
+
+### Ingestion Flow Summary
+
+1. Legal PDFs/DOCX are uploaded to S3 under `raw_docs/`.
+2. `database/doc_loader.py`:
+
+   * Downloads each file from S3.
+   * Extracts text with `pdfplumber` or `python-docx`.
+   * Chunks text (500 characters, 100-character overlap) using LangChain's `RecursiveCharacterTextSplitter`.
+   * Generates embeddings in batches using `text-embedding-3-small`.
+   * Upserts the vectors and metadata into the appropriate Pinecone index.
+
+#### Document Ingestion Pipeline (Detailed)
+
+```mermaid
+flowchart TD
+    START([Upload Documents]) --> S3[Upload PDFs/DOCX to S3<br/>raw_docs/ prefix]
+    S3 --> RUN[Run doc_loader.py]
+    
+    RUN --> LIST[List all files in S3<br/>Filter: .pdf, .docx]
+    
+    LIST --> LOOP{For each<br/>document}
+    
+    LOOP -->|PDF| EXTRACT_PDF[Extract text<br/>pdfplumber]
+    LOOP -->|DOCX| EXTRACT_DOCX[Extract text<br/>python-docx]
+    
+    EXTRACT_PDF --> CHUNK
+    EXTRACT_DOCX --> CHUNK[Chunk text<br/>RecursiveCharacterTextSplitter<br/>500 chars, 100 overlap]
+    
+    CHUNK --> EMBED_LOOP{For each<br/>chunk}
+    
+    EMBED_LOOP --> GEN_EMBED[Generate embedding<br/>OpenAI text-embedding-3-small]
+    
+    GEN_EMBED --> PREPARE[Prepare vector:<br/>id, embedding, metadata<br/>metadata: source, text]
+    
+    PREPARE --> BATCH{Batch size<br/>reached?<br/>100 vectors}
+    
+    BATCH -->|Yes| UPSERT[Upsert batch to Pinecone<br/>index.upsert]
+    BATCH -->|No| EMBED_LOOP
+    
+    UPSERT --> EMBED_LOOP
+    
+    EMBED_LOOP -->|More chunks| EMBED_LOOP
+    EMBED_LOOP -->|Done with document| LOOP
+    
+    LOOP -->|More documents| LOOP
+    LOOP -->|All processed| END([Complete])
+    
+    style START fill:#569a31
+    style END fill:#569a31
+    style GEN_EMBED fill:#10a37f
+    style UPSERT fill:#5c4ee5
+    style S3 fill:#569a31
+```
+
+## Tech Stack
+
+* **Languages**
+
+  * Python 3.8+
+  * TypeScript
+  * JavaScript
+
+* **Backend / ML / Data**
+
+  * OpenAI API (GPT-4 Turbo, `text-embedding-3-small`)
+  * Pinecone vector database (serverless, cosine similarity)
+  * LangChain (text splitting & optional retrieval utilities)
+  * tiktoken (token-aware chunking)
+  * pdfplumber, python-docx (document parsing)
+
+* **Frontend**
+
+  * React 19
+  * Tailwind CSS
+  * `marked` (markdown rendering)
+
+* **Cloud / Infra**
+
+  * AWS Lambda (containerized)
+  * AWS API Gateway
+  * AWS S3 (static frontend hosting + data + conversation history)
+  * Docker (Lambda packaging)
+
+* **Tooling & Testing**
+
+  * pytest, pytest-cov, pytest-mock
+  * Black, isort, mypy, flake8
+  * `pyproject.toml`, `pytest.ini`, `requirements-dev.txt`
+
+## Setup & Usage
+
+### Prerequisites
+
+* Python **3.8+**
+* Node.js **16+**
+* An **AWS** account with CLI configured
+* **Pinecone** account + API key
+* **OpenAI** API key
+
+### 1. Clone and configure environment
+
+```bash
+git clone <your-repo-url>.git
+cd chatbot
+```
+
+Create a `.env` file at the project root:
+
+```env
+OPENAI_API_KEY=your_openai_key
+PINECONE_API_KEY=your_pinecone_key
+PINECONE_INDEX_NAME=ontario-docs
+PINECONE_FAQ_INDEX_NAME=ontario-faqs
+AWS_ACCESS_KEY_ID=your_aws_access_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret
+AWS_REGION=us-east-1
+S3_BUCKET_NAME=philerchatbot
+```
+
+> For the frontend, you can optionally create `my-chatbot-frontend/.env.local` with:
+>
+> ```env
+> REACT_APP_API_URL=https://your-api-gateway-url.execute-api.region.amazonaws.com/dev
+> ```
+
+### 2. Set up the ingestion environment
+
+```bash
+pip install -r database/requirements.txt
+```
+
+Create Pinecone indexes (one-time):
+
+```bash
+python database/index_setup.py
+```
+
+Upload your PDF/DOCX legal documents to S3 under `raw_docs/`, then run:
+
+```bash
+python database/doc_loader.py
+```
+
+This will extract text, chunk, embed, and populate the `ontario-docs` and `ontario-faqs` indexes.
+
+### 3. Run tests (optional, recommended)
+
+```bash
+pytest
+# or to include database tests:
+pytest tests/ database/tests/
+```
+
+### 4. Package and deploy the Lambda
+
+```bash
+cd deployment/lambda
+./package.sh
+# then use AWS CLI to update the function, e.g.:
+aws lambda update-function-code \
+  --function-name YOUR_LAMBDA_NAME \
+  --zip-file fileb://lambda_package.zip
+```
+
+Make sure your Lambda environment variables match the `.env` values (OpenAI, Pinecone, S3, etc.).
+
+Set up an API Gateway HTTP API with a `POST /chatbot` route pointing to the Lambda.
+
+### 5. Run the frontend
+
+```bash
+cd my-chatbot-frontend
+npm install
+npm start
+```
+
+Open `http://localhost:3000` in your browser for local development.
+
+To build for production:
+
+```bash
+npm run build
+# then deploy build/ to an S3 static hosting bucket
+```
+
+### 6. API Usage
+
+**Endpoint**: `POST /chatbot` (behind API Gateway)
+
+**Request body:**
+
+```json
+{
+  "message": "What documents do I need for closing?",
+  "chat_history": [
+    {"role": "system", "content": "You are a legal assistant..."},
+    {"role": "user", "content": "Previous question"},
+    {"role": "assistant", "content": "Previous answer"}
+  ],
+  "session_id": "uuid-string"
+}
+```
+
+**Response body:**
+
+```json
+{
+  "reply": "For a real estate closing in Ontario, you need...",
+  "chat_history": [...],
+  "session_id": "uuid-string"
+}
+```
+
+## UI Screenshots
+TODO: Need to import UI Screenshots
+
+## What I Learned
+
+* How to design and ship a **production-ready RAG system** that combines OpenAI, Pinecone, and AWS serverless components.
+* How to build a **dual-index retrieval pipeline** that merges results from legal documents and FAQs into a unified context.
+* How to structure a project with **clear separation of concerns**: ingestion, serving (Lambda), and presentation (React frontend).
+* How to implement **document ingestion pipelines** for PDFs and DOCX, including text extraction, chunking, and embedding.
+* How to use **pytest and modern Python tooling** (Black, isort, mypy) to keep a non-trivial codebase maintainable.
+
+## Future Improvements
+
+* Add **rate limiting** to protect the API in production.
+* Deliver **explicit citations** and document sources directly in the UI for better transparency.
+* Implement **response streaming** from the backend for a more responsive chat experience.
+* Tighten **CORS configuration** and environment isolation (dev/stage/prod S3 buckets and indexes).
+
+## License
+
+Private.
+
