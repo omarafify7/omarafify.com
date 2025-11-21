@@ -5,6 +5,7 @@ import Particles from "./components/particles";
 import { SkillIcon } from "./components/skill-icon";
 import { techSkills } from "./data/tech-skills";
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Analytics } from "@vercel/analytics/next"
 
 
 const navigation = [
@@ -78,6 +79,7 @@ export default function Home() {
         </div>
       </div>
       <SpeedInsights />
+      <Analytics/>
     </div>
   );
 }
