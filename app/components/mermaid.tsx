@@ -128,6 +128,7 @@ export default function Mermaid({ chart }: { chart: string }) {
 							maxScale={4}
 							centerOnInit
 							limitToBounds={false}
+							pinch={{ step: 5 }}
 						>
 							{({ zoomIn, zoomOut, resetTransform }: { zoomIn: () => void; zoomOut: () => void; resetTransform: () => void }) => (
 								<>
