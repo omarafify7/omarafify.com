@@ -127,6 +127,7 @@ export default function Mermaid({ chart }: { chart: string }) {
 							minScale={0.5}
 							maxScale={4}
 							centerOnInit
+							limitToBounds={false}
 						>
 							{({ zoomIn, zoomOut, resetTransform }: { zoomIn: () => void; zoomOut: () => void; resetTransform: () => void }) => (
 								<>
@@ -182,7 +183,7 @@ export default function Mermaid({ chart }: { chart: string }) {
 
 						<div className="absolute bottom-4 left-0 right-0 text-center pointer-events-none">
 							<p className="text-sm text-zinc-400 bg-zinc-900/80 inline-block px-3 py-1 rounded-full border border-zinc-800">
-								Scroll to zoom • Drag to pan
+								Scroll to zoom • Drag to pan • Press <kbd className="px-2 py-1 bg-zinc-300 rounded border border-zinc-200">ESC</kbd> to close
 							</p>
 						</div>
 					</div>

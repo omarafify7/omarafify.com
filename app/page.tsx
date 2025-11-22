@@ -23,11 +23,13 @@ export default function Home() {
   const [isReturnVisit, setIsReturnVisit] = useState(false);
 
   useEffect(() => {
-    const visited = sessionStorage.getItem("visited");
-    if (visited) {
+    const visitedTime = sessionStorage.getItem("visitedTime");
+    const now = new Date().getTime();
+
+    if (visitedTime && now - parseInt(visitedTime) < 60000) {
       setIsReturnVisit(true);
     } else {
-      sessionStorage.setItem("visited", "true");
+      sessionStorage.setItem("visitedTime", now.toString());
     }
   }, []);
 
@@ -39,7 +41,7 @@ export default function Home() {
       <div className="hidden w-screen h-px animate-glow md:block animate-fade-left bg-gradient-to-r from-zinc-300/0 via-zinc-300/50 to-zinc-300/0" />
       <Particles
         className="fixed inset-0 -z-10 animate-fade-in"
-        quantity={100}
+        quantity={200}
       />
       <div className="mb-3 z-10 animate-fade-in" style={{ animationDuration: `${animationDuration}s` }}>
         <Image

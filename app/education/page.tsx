@@ -4,7 +4,7 @@ import { GraduationCap, Award } from "lucide-react";
 
 const degrees = [
   {
-    title: "Bachelor of Science in Computer Engineering",
+    title: "BASc in Computer Engineering w/ Professional Internship",
     institution: "Queen's University",
     location: "Kingston, ON, Canada",
     period: "Sep 2021 - Apr 2026",
@@ -22,7 +22,7 @@ const degrees = [
   {
     title: "Professional Certificate in Data Science",
     institution: "University of Waterloo WatSPEED",
-    location: "Waterloo, ON, Canada (Remote)",
+    location: "Waterloo, ON, Canada",
     period: "Sep 2023 - Dec 2024",
     status: "completed",
     description: "Focused on Data Engineering, Statistics, and Big Data Management Systems.",
