@@ -16,7 +16,7 @@ export function TableOfContents() {
 		const article = document.querySelector("article");
 		if (!article) return;
 
-		const headingElements = article.querySelectorAll("h2, h3");
+		const headingElements = article.querySelectorAll("h2"); //, h3 
 		const headingData: Heading[] = [];
 
 		headingElements.forEach((heading) => {
@@ -90,18 +90,16 @@ export function TableOfContents() {
 				{headings.map((heading) => (
 					<li
 						key={heading.id}
-						className={`${
-							heading.level === 3 ? "pl-4" : ""
-						}`}
+						className={`${heading.level === 3 ? "pl-4" : ""
+							}`}
 					>
 						<a
 							href={`#${heading.id}`}
 							onClick={(e) => handleClick(e, heading.id)}
-							className={`block py-1 transition-colors hover:text-zinc-900 ${
-								activeId === heading.id
+							className={`block py-1 transition-colors hover:text-zinc-900 ${activeId === heading.id
 									? "text-zinc-900 font-medium border-l-2 border-zinc-900 pl-3 -ml-3"
 									: "text-zinc-600 hover:border-l-2 hover:border-zinc-400 pl-3 -ml-3"
-							}`}
+								}`}
 						>
 							{heading.text}
 						</a>
