@@ -86,6 +86,7 @@ export function TableOfContents() {
 			<div className="mb-4 flex items-center justify-between text-sm">
 				<span className="font-semibold text-zinc-900">On this page</span>
 				<button
+					type="button"
 					onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
 					className="text-zinc-400 hover:text-zinc-900 transition-colors text-xs"
 					aria-label="Back to top"
@@ -100,6 +101,7 @@ export function TableOfContents() {
 						className={`${heading.level === 3 ? "pl-4" : ""
 							}`}
 					>
+						{/* rome-ignore lint/a11y/useValidAnchor: TOC navigation needs href for URL hash but onClick for smooth scroll */}
 						<a
 							href={`#${heading.id}`}
 							onClick={(e) => handleClick(e, heading.id)}

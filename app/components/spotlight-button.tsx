@@ -59,7 +59,7 @@ export const SpotlightButton: React.FC<SpotlightButtonProps> = ({
                 className="absolute inset-0 rounded-full transition-opacity duration-300"
                 style={{
                     opacity: 'var(--opacity)',
-                    background: `radial-gradient(120px circle at var(--x) var(--y), rgba(255, 255, 255, 0.8), transparent 60%)`,
+                    background: "radial-gradient(120px circle at var(--x) var(--y), rgba(255, 255, 255, 0.8), transparent 60%)",
                 }}
             />
 
@@ -81,7 +81,7 @@ export const SpotlightButton: React.FC<SpotlightButtonProps> = ({
     }
 
     return (
-        <button onClick={onClick} className="inline-block">
+        <button onClick={onClick} className="inline-block" type="button">
             <Content />
         </button>
     );

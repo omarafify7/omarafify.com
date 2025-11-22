@@ -84,8 +84,8 @@ export default function EducationPage() {
             <h3 className="text-2xl font-bold text-zinc-100">Degrees</h3>
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {degrees.map((degree, index) => (
-              <Card key={index}>
+            {degrees.map((degree) => (
+              <Card key={degree.title}>
                 <article className="p-6 md:p-8">
                   <div className="flex items-start justify-between gap-4 mb-4">
                     <div className="flex-1">
@@ -125,8 +125,8 @@ export default function EducationPage() {
             <h3 className="text-2xl font-bold text-zinc-100">Certifications</h3>
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {certificates.map((cert, index) => (
-              <Card key={index}>
+            {certificates.map((cert) => (
+              <Card key={cert.title}>
                 <article className="p-6 md:p-8">
                   <div className="flex items-start justify-between gap-4 mb-4">
                     <div className="flex-1">

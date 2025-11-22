@@ -40,6 +40,7 @@ export default function Mermaid({ chart }: { chart: string }) {
 				// Render the diagram
 				const { svg: renderedSvg } = await mermaid.render(id, chart.trim());
 				setSvg(renderedSvg);
+				// rome-ignore lint/suspicious/noExplicitAny: Error handling
 			} catch (err: any) {
 				console.error("Mermaid rendering error:", err);
 				setError(err.message || "Failed to render diagram");
@@ -97,6 +98,7 @@ export default function Mermaid({ chart }: { chart: string }) {
 					dangerouslySetInnerHTML={{ __html: svg }}
 				/>
 				<button
+					type="button"
 					onClick={(e) => {
 						e.stopPropagation();
 						setIsExpanded(true);
@@ -117,10 +119,20 @@ export default function Mermaid({ chart }: { chart: string }) {
 				<div
 					className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 backdrop-blur-sm"
 					onClick={() => setIsExpanded(false)}
+					onKeyDown={(e) => {
+						if (e.key === "Escape") {
+							setIsExpanded(false);
+						}
+					}}
+					role="button"
+					tabIndex={0}
 				>
 					<div
 						className="w-full h-full max-w-[95vw] max-h-[90vh] bg-zinc-900 rounded-lg shadow-2xl border border-zinc-800 relative overflow-hidden flex flex-col"
 						onClick={(e) => e.stopPropagation()}
+						onKeyDown={(e) => e.stopPropagation()}
+						role="button"
+						tabIndex={0}
 					>
 						<TransformWrapper
 							initialScale={1}
@@ -135,6 +147,7 @@ export default function Mermaid({ chart }: { chart: string }) {
 									{/* Controls */}
 									<div className="absolute top-4 left-4 flex gap-2 z-10">
 										<button
+											type="button"
 											onClick={() => zoomIn()}
 											className="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg shadow-xl border border-zinc-700 transition-colors"
 											title="Zoom in"
@@ -142,6 +155,7 @@ export default function Mermaid({ chart }: { chart: string }) {
 											<ZoomIn className="w-5 h-5 text-zinc-300" />
 										</button>
 										<button
+											type="button"
 											onClick={() => zoomOut()}
 											className="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg shadow-xl border border-zinc-700 transition-colors"
 											title="Zoom out"
@@ -149,6 +163,7 @@ export default function Mermaid({ chart }: { chart: string }) {
 											<ZoomOut className="w-5 h-5 text-zinc-300" />
 										</button>
 										<button
+											type="button"
 											onClick={() => resetTransform()}
 											className="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg shadow-xl border border-zinc-700 transition-colors"
 											title="Reset"
@@ -159,6 +174,7 @@ export default function Mermaid({ chart }: { chart: string }) {
 
 									{/* Close button */}
 									<button
+										type="button"
 										onClick={() => setIsExpanded(false)}
 										className="absolute top-4 right-4 p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg z-10 shadow-xl border border-zinc-700 transition-colors"
 										title="Close (ESC)"
@@ -174,6 +190,7 @@ export default function Mermaid({ chart }: { chart: string }) {
 										>
 											<div
 												className="w-full h-full flex items-center justify-center p-8"
+												// rome-ignore lint/security/noDangerouslySetInnerHtml: Mermaid generates safe SVG
 												dangerouslySetInnerHTML={{ __html: svg }}
 											/>
 										</TransformComponent>

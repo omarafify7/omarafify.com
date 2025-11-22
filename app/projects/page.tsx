@@ -86,9 +86,13 @@ export default async function ProjectsPage() {
     topProjects.push(...remainingPublished.slice(0, needed));
   }
 
-  const featured = topProjects[0]!;
-  const top2 = topProjects[1] ?? topProjects[0]!;
-  const top3 = topProjects[2] ?? topProjects[0]!;
+  const featured = topProjects[0];
+  const top2 = topProjects[1] ?? featured;
+  const top3 = topProjects[2] ?? featured;
+
+  if (!featured) {
+    return null;
+  }
 
   // All other published projects, excluding the top 3
   const sorted = publishedProjects
