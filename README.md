@@ -12,7 +12,7 @@
 
 A high-performance portfolio platform built with Next.js 13 App Router, featuring a custom MDX content pipeline, privacy-preserving edge analytics, and interactive UI components.
 
-[Live Demo](https://omarafify-com.vercel.app) • [View Projects](https://omarafify-com.vercel.app/projects)
+[Live Demo](https://omarafify.com) • [View Projects](https://omarafify.com/projects)
 
 </div>
 
