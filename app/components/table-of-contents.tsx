@@ -83,8 +83,15 @@ export function TableOfContents() {
 
 	return (
 		<nav className="hidden xl:block sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto">
-			<div className="mb-4 text-sm font-semibold text-zinc-900">
-				On this page
+			<div className="mb-4 flex items-center justify-between text-sm">
+				<span className="font-semibold text-zinc-900">On this page</span>
+				<button
+					onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+					className="text-zinc-400 hover:text-zinc-900 transition-colors text-xs"
+					aria-label="Back to top"
+				>
+					Back to top
+				</button>
 			</div>
 			<ul className="space-y-2 text-sm">
 				{headings.map((heading) => (
@@ -97,8 +104,8 @@ export function TableOfContents() {
 							href={`#${heading.id}`}
 							onClick={(e) => handleClick(e, heading.id)}
 							className={`block py-1 transition-colors hover:text-zinc-900 ${activeId === heading.id
-									? "text-zinc-900 font-medium border-l-2 border-zinc-900 pl-3 -ml-3"
-									: "text-zinc-600 hover:border-l-2 hover:border-zinc-400 pl-3 -ml-3"
+								? "text-zinc-900 font-medium border-l-2 border-zinc-900 pl-3 -ml-3"
+								: "text-zinc-600 hover:border-l-2 hover:border-zinc-400 pl-3 -ml-3"
 								}`}
 						>
 							{heading.text}
