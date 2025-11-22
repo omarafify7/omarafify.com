@@ -28,24 +28,29 @@ techStack:
 
 
 
-# Serverless Legal RAG Chatbot for Ontario Real Estate  
-AI-powered legal assistant for Ontario real estate, built with a fully serverless RAG architecture.
+<div align="center">
+
+# Serverless Legal RAG Chatbot for Ontario Real Estate
+
+### AI-powered legal assistant for Ontario real estate, built with a fully serverless RAG architecture
+
+[![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18-61dafb?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
+[![AWS](https://img.shields.io/badge/AWS-Serverless-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
+[![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-412991?style=for-the-badge&logo=openai&logoColor=white)](https://openai.com/)
+[![Pinecone](https://img.shields.io/badge/Pinecone-Vector%20DB-black?style=for-the-badge&logo=pinecone&logoColor=white)](https://www.pinecone.io/)
+
+A production-ready Retrieval-Augmented Generation (RAG) chatbot that answers questions about Ontario real estate closings and refinancing using GPT-4 Turbo and Pinecone deployed on AWS.
+
+[Live Demo](https://chat.philer.ai/) • [Repository](https://github.com/omarafify7/Serverless-Legal-RAG-Chatbot-for-Ontario-Real-Estate)
+
+</div>
 
 ## Overview
 This project is a production-ready Retrieval-Augmented Generation (RAG) chatbot that answers questions about Ontario real estate legal documents. It combines vector similarity search with GPT-4 to deliver accurate, context-aware guidance based on both formal documents and FAQs, all deployed on a serverless AWS stack.
 
 The system includes a modern React frontend, a containerized AWS Lambda backend, a Pinecone vector database, and an ingestion pipeline that processes PDFs/DOCX from S3 into searchable embeddings.
-
-## Features
-- **Legal RAG assistant for Ontario real estate** – answers questions about closings, refinancing, and other real estate topics using real legal documents and FAQs.
-- **Dual-index retrieval** – queries both a legal-documents index and an FAQ index in Pinecone, then ranks and combines results for richer context.
-- **GPT-4 Turbo responses with context** – generates responses using GPT-4 Turbo conditioned on retrieved document chunks and conversation history.
-- **Document ingestion pipeline** – extracts text from PDF/DOCX in S3, chunks it, embeds it, and upserts vectors into Pinecone.
-- **Multi-turn chat** – tracks conversation history to support follow-up questions and more natural interactions.
-- **Conversation persistence** – writes full conversation logs to S3 for auditing, debugging, or analytics.
-- **Serverless deployment** – backend runs on AWS Lambda behind API Gateway, with automatic scaling and pay-per-use pricing.
-- **Type-safe frontend** – React + TypeScript frontend with Tailwind styling and markdown rendering for assistant responses.
-- **Testing & tooling** – pytest-based test suites, Black, isort, mypy, and dev requirements for a production-style workflow.
 
 ## Architecture
 
@@ -405,6 +410,16 @@ flowchart TD
     style UPSERT fill:#5c4ee5
     style S3 fill:#569a31
 ```
+## Features
+- **Legal RAG assistant for Ontario real estate** – answers questions about closings, refinancing, and other real estate topics using real legal documents and FAQs.
+- **Dual-index retrieval** – queries both a legal-documents index and an FAQ index in Pinecone, then ranks and combines results for richer context.
+- **GPT-4 Turbo responses with context** – generates responses using GPT-4 Turbo conditioned on retrieved document chunks and conversation history.
+- **Document ingestion pipeline** – extracts text from PDF/DOCX in S3, chunks it, embeds it, and upserts vectors into Pinecone.
+- **Multi-turn chat** – tracks conversation history to support follow-up questions and more natural interactions.
+- **Conversation persistence** – writes full conversation logs to S3 for auditing, debugging, or analytics.
+- **Serverless deployment** – backend runs on AWS Lambda behind API Gateway, with automatic scaling and pay-per-use pricing.
+- **Type-safe frontend** – React + TypeScript frontend with Tailwind styling and markdown rendering for assistant responses.
+- **Testing & tooling** – pytest-based test suites, Black, isort, mypy, and dev requirements for a production-style workflow.
 
 ## Tech Stack
 
