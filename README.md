@@ -1,85 +1,498 @@
+<div align="center">
+
 # omarafify.com
-A modern, high-performance portfolio engine built with Next.js 13, utilizing a custom MDX pipeline and edge-based analytics.
 
-## Overview
-This project is a personal portfolio and technical blog platform designed to showcase engineering projects and technical skills. Built on the Next.js 13 App Router, it features a custom content management system using MDX and Contentlayer. It includes a bespoke analytics system that leverages Redis on the Edge for privacy-preserving view tracking, ensuring high performance without relying on heavy third-party scripts.
+### Modern Portfolio Engine with Custom MDX Pipeline & Edge Analytics
 
-## Features
-- **Next.js 13 App Router:** Full utilization of React Server Components for optimal initial load performance.
-- **Custom MDX Engine:** Semantic content processing with `remark` and `rehype` plugins for syntax highlighting, auto-linked headings, and interactive components.
-- **Edge Analytics:** Custom view counting system using Upstash Redis with IP hashing for privacy-compliant deduplication.
-- **Interactive Diagrams:** Integrated Mermaid.js support that renders code blocks into zoomable, interactive architecture diagrams.
-- **Dynamic UI:** Canvas-based particle animations with mouse magnetism and Framer Motion transitions.
-- **Type Safety:** End-to-end type safety for content schemas via Contentlayer and TypeScript.
+[![Next.js](https://img.shields.io/badge/Next.js-13-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.2-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18-61dafb?style=for-the-badge&logo=react)](https://reactjs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.3-38bdf8?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com)
 
-## Architecture
-The application is structured around the Next.js App Router, separating server-side data fetching from client-side interactivity.
+A high-performance portfolio platform built with Next.js 13 App Router, featuring a custom MDX content pipeline, privacy-preserving edge analytics, and interactive UI components.
 
+[Live Demo](https://omarafify.com) • [View Projects](https://omarafify.com/projects)
 
+</div>
 
-### Core Pipelines
-1.  **Content Pipeline:**
-    * **Input:** MDX files with Frontmatter (YAML).
-    * **Processing:** Contentlayer validates data against schemas. Remark/Rehype plugins transform Markdown ASTs (e.g., converting `mermaid` code blocks to React components).
-    * **Output:** Statically generated JSON/Types ready for React hydration.
+---
 
-2.  **Analytics Pipeline:**
-    * **Trigger:** Client-side `ReportView` component mounts on project pages.
-    * **Edge API:** A `POST` request is sent to `/api/incr`.
-    * **Deduplication:** The server hashes the user IP (SHA-256). A Redis `SET` command with `NX` (Only set if Not Exists) checks if this hash has been seen in the last 24 hours.
-    * **Storage:** If unique, the view counter in Redis is incremented atomically.
+## 📋 Table of Contents
 
-## Tech Stack
-- **Core:** TypeScript, Next.js 13 (App Router), React 18.
-- **Content:** MDX, Contentlayer, Remark/Rehype ecosystem.
-- **Data & Edge:** Upstash Redis (REST API), Vercel Edge Runtime.
-- **Styling & UI:** Tailwind CSS, Framer Motion, Lucide React.
-- **Visualization:** Mermaid.js, HTML5 Canvas (Particles).
+- [Overview](#-overview)
+- [Architecture](#-architecture)
+  - [System Architecture](#system-architecture)
+  - [Content Processing Pipeline](#content-processing-pipeline)
+  - [Analytics Pipeline](#analytics-pipeline)
+  - [Component Architecture](#component-architecture)
+- [Key Features](#-key-features)
+- [Tech Stack](#-tech-stack)
+- [Quick Start](#-quick-start)
+- [Development](#-development)
+- [What I Learned](#-what-i-learned)
+- [Future Improvements](#-future-improvements)
 
-## Setup & Usage
+---
+
+## 🎯 Overview
+
+This portfolio platform is designed to showcase engineering projects and technical skills through an optimized, modern web experience. Built on Next.js 13's App Router with React Server Components, it combines:
+
+- **Custom MDX Content Pipeline** using Contentlayer with semantic processing
+- **Edge-based Analytics** with Upstash Redis for privacy-preserving view tracking
+- **Interactive Visualizations** including Mermaid diagrams and particle animations
+- **End-to-end Type Safety** via TypeScript and validated content schemas
+
+The platform prioritizes performance, privacy, and developer experience while maintaining a visually stunning interface.
+
+---
+
+## 🏗️ Architecture
+
+### System Architecture
+
+```mermaid
+graph TB
+    subgraph "Content Layer"
+        MDX[MDX Files<br/>content/projects/*.mdx]
+        FM[Frontmatter YAML]
+        Content[Markdown Content]
+    end
+
+    subgraph "Build Time - Contentlayer"
+        CL[Contentlayer Engine]
+        Schema[Schema Validation]
+        Remark[Remark Plugins<br/>remark-gfm]
+        Rehype[Rehype Plugins<br/>rehype-slug<br/>rehype-mermaid<br/>rehype-pretty-code<br/>rehype-autolink-headings]
+        JSON[Generated JSON + Types]
+    end
+
+    subgraph "Next.js App Router"
+        SSR[Server Components]
+        CSR[Client Components]
+        Pages["Pages<br/>/projects/[slug]"]
+        Layouts[Layouts]
+    end
+
+    subgraph "Edge Runtime"
+        API[API Routes<br/>/api/incr]
+        Redis[(Upstash Redis)]
+    end
+
+    subgraph "Client Browser"
+        UI[Interactive UI]
+        Particles[Particle System]
+        Mermaid[Mermaid.js Renderer]
+        Analytics[Analytics Component]
+    end
+
+    MDX --> FM
+    MDX --> Content
+    FM --> CL
+    Content --> CL
+    CL --> Schema
+    Schema --> Remark
+    Remark --> Rehype
+    Rehype --> JSON
+    JSON --> SSR
+    SSR --> Pages
+    SSR --> Layouts
+    Pages --> CSR
+    CSR --> UI
+    CSR --> Particles
+    CSR --> Mermaid
+    CSR --> Analytics
+    Analytics --> API
+    API --> Redis
+
+    style MDX fill:#f9f,stroke:#333,stroke-width:2px
+    style CL fill:#bbf,stroke:#333,stroke-width:2px
+    style SSR fill:#bfb,stroke:#333,stroke-width:2px
+    style API fill:#fbb,stroke:#333,stroke-width:2px
+    style Redis fill:#fab,stroke:#333,stroke-width:3px
+```
+
+### Content Processing Pipeline
+
+```mermaid
+flowchart LR
+    subgraph Input
+        A[MDX File] --> B{Parse}
+        B --> C[Frontmatter<br/>YAML]
+        B --> D[Markdown<br/>Content]
+    end
+
+    subgraph Contentlayer
+        C --> E[Schema Validation]
+        E --> F{Valid?}
+        F -->|Yes| G[Type Generation]
+        F -->|No| H[Build Error]
+        D --> I[Remark Processing]
+    end
+
+    subgraph "Markdown → HTML"
+        I --> J[remark-gfm<br/>GFM Support]
+        J --> K[rehype-slug<br/>Add IDs]
+        K --> L[rehype-mermaid<br/>Detect Diagrams]
+        L --> M{Mermaid<br/>Block?}
+        M -->|Yes| N[Create Custom<br/>div with data-mermaid]
+        M -->|No| O[rehype-pretty-code<br/>Syntax Highlighting]
+        N --> P[rehype-autolink-headings<br/>Link Headings]
+        O --> P
+        P --> Q[HTML Output]
+    end
+
+    subgraph Output
+        G --> R[Typed JSON]
+        Q --> R
+        R --> S[.contentlayer/<br/>generated/]
+        S --> T[Import in<br/>React Components]
+    end
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style L fill:#bfb,stroke:#333,stroke-width:2px
+    style R fill:#fbb,stroke:#333,stroke-width:2px
+```
+
+### Analytics Pipeline
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Browser
+    participant ReportView as ReportView Component
+    participant EdgeAPI as Edge API<br/>/api/incr
+    participant Redis as Upstash Redis
+
+    User->>Browser: Visit /projects/[slug]
+    Browser->>ReportView: Component Mounts
+    ReportView->>ReportView: Check hasReported ref
+    
+    alt First Mount
+        ReportView->>EdgeAPI: POST /api/incr<br/>{slug: "project-name"}
+        EdgeAPI->>EdgeAPI: Extract IP Address
+        EdgeAPI->>EdgeAPI: SHA-256 Hash IP
+        
+        EdgeAPI->>Redis: SET deduplicate:{hash}:{slug}<br/>NX EX 86400
+        
+        alt New Visitor (24h)
+            Redis-->>EdgeAPI: OK (Key Created)
+            EdgeAPI->>Redis: INCR pageviews:projects:{slug}
+            Redis-->>EdgeAPI: New Count
+            EdgeAPI-->>ReportView: 202 Accepted
+        else Seen Before
+            Redis-->>EdgeAPI: NULL (Key Exists)
+            EdgeAPI-->>ReportView: 202 Accepted<br/>(No Increment)
+        end
+    else Already Reported
+        ReportView->>ReportView: Skip (React Strict Mode)
+    end
+
+    Note over EdgeAPI,Redis: Privacy: Only hashed IPs stored<br/>Deduplication: 24-hour window<br/>No PII or tracking cookies
+```
+
+### Component Architecture
+
+```mermaid
+graph TD
+    subgraph "Server Components"
+        Root[layout.tsx<br/>Root Layout]
+        Home[page.tsx<br/>Home Page]
+        ProjectLayout[projects/layout.tsx]
+        ProjectPage["projects/[slug]/page.tsx"]
+        Header["projects/[slug]/header.tsx"]
+        Article[projects/article.tsx]
+    end
+
+    subgraph "Client Components"
+        Particles[particles.tsx<br/>Canvas Animation]
+        Nav[nav.tsx<br/>Navigation]
+        Card[card.tsx<br/>Project Cards]
+        SpotlightBtn[spotlight-button.tsx<br/>Interactive Button]
+        SkillIcon[skill-icon.tsx<br/>Tech Icons]
+        Mermaid[mermaid.tsx<br/>Diagram Renderer]
+        TOC[table-of-contents.tsx<br/>Page Navigation]
+        ReportView[view.tsx<br/>Analytics Reporter]
+        MDX[mdx.tsx<br/>MDX Components]
+    end
+
+    subgraph "Shared Utilities"
+        Mouse[util/mouse.ts<br/>Mouse Tracking]
+        Analytics[components/analytics.tsx<br/>Vercel Analytics]
+    end
+
+    Root --> Home
+    Root --> ProjectLayout
+    ProjectLayout --> ProjectPage
+    ProjectPage --> Header
+    ProjectPage --> Article
+    ProjectPage --> ReportView
+
+    Home --> Particles
+    Home --> Nav
+    Home --> SpotlightBtn
+    Home --> SkillIcon
+
+    Article --> MDX
+    Article --> TOC
+
+    MDX --> Mermaid
+
+    SpotlightBtn --> Mouse
+    Particles --> Mouse
+
+    ProjectPage --> Analytics
+
+    style Root fill:#bfb,stroke:#333,stroke-width:2px
+    style Particles fill:#bbf,stroke:#333,stroke-width:2px
+    style Mermaid fill:#fbb,stroke:#333,stroke-width:2px
+    style ReportView fill:#fab,stroke:#333,stroke-width:2px
+```
+
+---
+
+## ✨ Key Features
+
+### 🚀 Next.js 13 App Router
+Full utilization of React Server Components for optimal initial load performance and automatic code splitting.
+
+### 📝 Custom MDX Engine
+Semantic content processing with extensible plugin architecture:
+- **Syntax Highlighting:** `rehype-pretty-code` with GitHub Dark theme
+- **Auto-linked Headings:** Automatic anchor generation with `rehype-slug` and `rehype-autolink-headings`
+- **GFM Support:** Tables, task lists, and strikethrough via `remark-gfm`
+- **Custom Mermaid Plugin:** [`lib/rehype-mermaid.js`](file:///Users/omarafify/Documents/Portfolio/omarafify.com/lib/rehype-mermaid.js) intercepts diagram code blocks before syntax highlighting
+
+### 📊 Edge Analytics
+Privacy-preserving view tracking system:
+- **Edge Runtime:** Runs on Vercel Edge Network for global low-latency
+- **IP Hashing:** SHA-256 hashing ensures no PII storage ([`pages/api/incr.ts`](file:///Users/omarafify/Documents/Portfolio/omarafify.com/pages/api/incr.ts))
+- **Deduplication:** 24-hour Redis key expiration prevents double-counting
+- **Atomic Operations:** Redis `INCR` ensures accurate concurrent updates
+
+### 🎨 Interactive Diagrams
+Integrated Mermaid.js support with zoom/pan controls:
+- Diagrams defined in markdown code blocks
+- Client-side rendering with [`mermaid.tsx`](file:///Users/omarafify/Documents/Portfolio/omarafify.com/app/components/mermaid.tsx)
+- Powered by `react-zoom-pan-pinch` for interactive exploration
+
+### 🌈 Dynamic UI
+Premium visual experience:
+- **Particle System:** WebGL-accelerated canvas with mouse magnetism ([`particles.tsx`](file:///Users/omarafify/Documents/Portfolio/omarafify.com/app/components/particles.tsx))
+- **Spotlight Buttons:** Proximity-based hover effects ([`spotlight-button.tsx`](file:///Users/omarafify/Documents/Portfolio/omarafify.com/app/components/spotlight-button.tsx))
+- **Smooth Animations:** Framer Motion for declarative transitions
+- **Responsive Design:** Tailwind CSS with mobile-first approach
+
+### 🔒 Type Safety
+End-to-end type safety for content:
+- **Schema Validation:** Contentlayer validates frontmatter against TypeScript schemas
+- **Generated Types:** Automatic type generation for content files
+- **TypeScript Strict Mode:** Prevents runtime errors during development
+
+---
+
+## 🛠️ Tech Stack
+
+### Core Framework
+- **[Next.js 13](https://nextjs.org/)** - React framework with App Router
+- **[React 18](https://reactjs.org/)** - UI library with Server Components
+- **[TypeScript 5.2](https://www.typescriptlang.org/)** - Type-safe JavaScript
+
+### Content Management
+- **[Contentlayer 0.3](https://contentlayer.dev/)** - Content SDK for type-safe MDX
+- **[MDX](https://mdxjs.com/)** - Markdown with JSX components
+- **[Remark](https://remark.js.org/)** / **[Rehype](https://github.com/rehypejs/rehype)** - Markdown/HTML processors
+
+### Data & Infrastructure
+- **[Upstash Redis](https://upstash.com/)** - Serverless Redis for analytics
+- **[Vercel Edge Runtime](https://vercel.com/docs/functions/edge-functions)** - Edge computing platform
+- **[Vercel Analytics](https://vercel.com/analytics)** - Web vitals monitoring
+
+### Styling & UI
+- **[Tailwind CSS 3.3](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[Framer Motion](https://www.framer.com/motion/)** - Animation library
+- **[Lucide React](https://lucide.dev/)** - Icon library
+
+### Visualization
+- **[Mermaid.js](https://mermaid.js.org/)** - Diagram rendering
+- **[HTML5 Canvas](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)** - Particle animations
+- **[react-zoom-pan-pinch](https://github.com/BetterTyped/react-zoom-pan-pinch)** - Interactive diagram controls
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+
-- pnpm
+
+- **Node.js 18+** ([Download](https://nodejs.org/))
+- **pnpm** ([Install](https://pnpm.io/installation))
 
 ### Installation
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/omarafify/omarafify.com.git](https://github.com/omarafify/omarafify.com.git)
-    cd omarafify.com
-    ```
 
-2.  **Install dependencies:**
-    ```bash
-    pnpm install
-    ```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/omarafify/omarafify.com.git
+   cd omarafify.com
+   ```
 
-3.  **Configure Environment:**
-    Create a `.env` file in the root directory:
-    ```bash
-    UPSTASH_REDIS_REST_URL=<your-upstash-url>
-    UPSTASH_REDIS_REST_TOKEN=<your-upstash-token>
-    NEXT_PUBLIC_BEAM_TOKEN=<optional-analytics-token>
-    ```
+2. **Install dependencies:**
+   ```bash
+   pnpm install
+   ```
 
-4.  **Run Development Server:**
-    ```bash
-    pnpm dev
-    ```
-    The site will be available at `http://localhost:3000`.
+3. **Configure environment variables:**
+   
+   Create a `.env` file in the root directory:
+   ```bash
+   UPSTASH_REDIS_REST_URL=your-upstash-url
+   UPSTASH_REDIS_REST_TOKEN=your-upstash-token
+   NEXT_PUBLIC_BEAM_TOKEN=optional-analytics-token
+   ```
 
-5.  **Build for Production:**
-    ```bash
-    pnpm build
-    pnpm start
-    ```
+   > **Note:** Get free Upstash Redis credentials at [console.upstash.com](https://console.upstash.com/)
 
-## What I Learned
-- **Edge Computing constraints:** Adapting API routes to the Vercel Edge Runtime required utilizing the `fetch` API and Redis REST client instead of standard Node.js TCP connections.
-- **AST Transformations:** Gained deep insight into how compilers work by writing custom Rehype plugins to intercept HTML generation for Mermaid diagrams.
-- **React Server Components:** Learned to effectively balance server-side rendering for SEO/Performance with client-side islands for interactivity (like the particle system).
+4. **Run the development server:**
+   ```bash
+   pnpm dev
+   ```
+   
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Future Improvements
-- **Migration from Contentlayer:** Transition to Next.js Content Collections as Contentlayer is currently deprecated.
-- **Search Functionality:** Implement a fuzzy-search algorithm to filter projects by tech stack or title.
-- **Testing:** Add Playwright end-to-end tests to validate the analytics pipeline and diagram rendering.
+5. **Build for production:**
+   ```bash
+   pnpm build
+   pnpm start
+   ```
+
+---
+
+## 💻 Development
+
+### Project Structure
+
+```
+omarafify.com/
+├── app/                      # Next.js App Router
+│   ├── components/           # React components
+│   │   ├── particles.tsx    # Canvas particle system
+│   │   ├── mermaid.tsx      # Mermaid diagram renderer
+│   │   ├── mdx.tsx          # MDX component mappings
+│   │   └── ...
+│   ├── projects/            # Projects section
+│   │   ├── [slug]/          # Dynamic project pages
+│   │   └── page.tsx         # Projects listing
+│   ├── layout.tsx           # Root layout
+│   └── page.tsx             # Home page
+├── content/                 # MDX content files
+│   └── projects/            # Project markdown files
+├── lib/                     # Utilities and plugins
+│   └── rehype-mermaid.js   # Custom rehype plugin
+├── pages/api/               # API routes
+│   └── incr.ts             # Analytics endpoint
+├── public/                  # Static assets
+├── util/                    # Helper functions
+├── contentlayer.config.js  # Content schema & config
+└── tailwind.config.js      # Tailwind configuration
+```
+
+### Adding New Projects
+
+1. Create an MDX file in `content/projects/`:
+   ```mdx
+   ---
+   title: "Your Project Title"
+   description: "Brief description"
+   date: "2024-01-01"
+   published: true
+   tier: "A"
+   category: ["ml", "backend"]
+   techStack: ["Python", "AWS", "Docker"]
+   repository: "https://github.com/username/repo"
+   ---
+
+   Your project content here...
+   ```
+
+2. Contentlayer will automatically:
+   - Validate the frontmatter schema
+   - Generate TypeScript types
+   - Process the MDX content
+   - Make it available in your components
+
+### Custom MDX Components
+
+Extend [`app/components/mdx.tsx`](file:///Users/omarafify/Documents/Portfolio/omarafify.com/app/components/mdx.tsx) to add custom components:
+
+```tsx
+const components = {
+  h1: (props: any) => <h1 className="custom-h1" {...props} />,
+  YourComponent: CustomComponent,
+};
+```
+
+### Formatting
+
+The project uses [Rome](https://rome.tools/) for formatting:
+
+```bash
+pnpm fmt
+```
+
+---
+
+## 📚 What I Learned
+
+### Edge Computing Constraints
+Adapting API routes to the Vercel Edge Runtime required fundamental changes:
+- **No Node.js APIs:** Switched from native `crypto` to Web Crypto API
+- **No TCP Connections:** Used Upstash's REST API instead of Redis protocol
+- **Stateless Functions:** Designed for instant cold starts and global distribution
+
+### AST Transformations
+Building the custom Mermaid plugin ([`lib/rehype-mermaid.js`](file:///Users/omarafify/Documents/Portfolio/omarafify.com/lib/rehype-mermaid.js)) taught me:
+- How markdown parsers create Abstract Syntax Trees (ASTs)
+- Plugin execution order matters (must run before syntax highlighting)
+- Transforming nodes while preserving document structure
+
+### React Server Components
+Learned the new paradigm of data fetching and rendering:
+- **Server Components:** Fetch data, access databases, render static content
+- **Client Components:** Handle interactivity, use hooks, access browser APIs
+- **Boundaries:** Strategic "use client" directives for minimal client JavaScript
+
+---
+
+## 🔮 Future Improvements
+
+### Migration from Contentlayer
+Contentlayer is deprecated. Plan to migrate to:
+- **Option 1:** Next.js built-in MDX support with custom loader
+- **Option 2:** [Velite](https://velite.js.org/) as a direct replacement
+- **Option 3:** Custom build-time processor
+
+### Search Functionality
+Implement client-side fuzzy search:
+- Index project metadata (title, description, tech stack)
+- Use [Fuse.js](https://fusejs.io/) for fuzzy matching
+- Filter and sort projects dynamically
+
+### Testing Suite
+Add comprehensive testing:
+- **Unit Tests:** Jest for utilities and components
+- **Integration Tests:** Test MDX pipeline and content processing
+- **E2E Tests:** Playwright for user flows and analytics verification
+
+### Performance Optimizations
+- Implement incremental static regeneration (ISR) for projects
+- Add image optimization with Next.js Image component
+- Optimize particle system with WebGL shaders
+
+---
+
+<div align="center">
+
+**Built with ❤️ by [Omar Afify](https://omarafify.com)**
+
+</div>
