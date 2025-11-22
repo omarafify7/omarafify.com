@@ -13,7 +13,7 @@ const degrees = [
   },
   {
     title: "Professional Certificate in Artificial Intelligence",
-    institution: "University of Toronto", // School of Continuing Studies
+    institution: "University of Toronto School of Continuing Studies",
     location: "Toronto, ON, Canada",
     period: "May 2025 - Dec 2025",
     status: "in-progress",
@@ -21,8 +21,8 @@ const degrees = [
   },
   {
     title: "Professional Certificate in Data Science",
-    institution: "University of Toronto School of Continuing Studies",
-    location: "Waterloo, ON, Canada",
+    institution: "University of Waterloo WatSPEED",
+    location: "Waterloo, ON, Canada (Remote)",
     period: "Sep 2023 - Dec 2024",
     status: "completed",
     description: "Focused on Data Engineering, Statistics, and Big Data Management Systems.",
@@ -98,11 +98,10 @@ export default function EducationPage() {
                       <p className="text-xs text-zinc-500">{degree.location}</p>
                     </div>
                     <span
-                      className={`px-3 py-1 text-xs font-medium rounded-full ${
-                        degree.status === "completed"
-                          ? "bg-green-500/20 text-green-400"
-                          : "bg-yellow-500/20 text-yellow-400"
-                      }`}
+                      className={`px-3 py-1 text-xs font-medium rounded-full ${degree.status === "completed"
+                        ? "bg-green-500/20 text-green-400"
+                        : "bg-yellow-500/20 text-yellow-400"
+                        }`}
                     >
                       {degree.status === "completed" ? "Completed" : "In Progress"}
                     </span>
@@ -137,11 +136,10 @@ export default function EducationPage() {
                       <p className="text-sm text-zinc-400">{cert.issuer}</p>
                     </div>
                     <span
-                      className={`px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap ${
-                        cert.status === "completed"
-                          ? "bg-green-500/20 text-green-400"
-                          : "bg-yellow-500/20 text-yellow-400"
-                      }`}
+                      className={`px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap ${cert.status === "completed"
+                        ? "bg-green-500/20 text-green-400"
+                        : "bg-yellow-500/20 text-yellow-400"
+                        }`}
                     >
                       {cert.status === "completed" ? "Earned" : "In Progress"}
                     </span>
