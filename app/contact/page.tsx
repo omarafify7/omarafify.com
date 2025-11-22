@@ -13,14 +13,9 @@ const socials = [
 	},
 	{
 		icon: <Mail size={20} />,
-		href: "mailto:omaradelafify2003@gmail.com",
+		href: "mailto:hello@omarafify.com",
 		label: "Email",
-		handle: (
-			<span className="flex flex-col items-center">
-				<span>omaradelafify2003@</span>
-				<span>gmail.com</span>
-			</span>
-		),
+		handle: "hello@omarafify.com",
 	},
 	{
 		icon: <Github size={20} />,
