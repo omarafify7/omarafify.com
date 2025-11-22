@@ -456,6 +456,35 @@ flowchart TD
   * Black, isort, mypy, flake8
   * `pyproject.toml`, `pytest.ini`, `requirements-dev.txt`
 
+
+## UI Screenshots
+Home Page:
+
+![UI Screenshot of the Legal RAG Chatbot](/Legal_RAG_UI_screenshot.png)
+
+After sending a message:
+
+![UI Screenshot of the Legal RAG Chatbot](/Legal_RAG_UI_screenshot_2.png)
+
+Response:
+
+![UI Screenshot of the Legal RAG Chatbot](/Legal_RAG_UI_screenshot_3.png)
+
+## What I Learned
+
+* How to design and ship a **production-ready RAG system** that combines OpenAI, Pinecone, and AWS serverless components.
+* How to build a **dual-index retrieval pipeline** that merges results from legal documents and FAQs into a unified context.
+* How to structure a project with **clear separation of concerns**: ingestion, serving (Lambda), and presentation (React frontend).
+* How to implement **document ingestion pipelines** for PDFs and DOCX, including text extraction, chunking, and embedding.
+* How to use **pytest and modern Python tooling** (Black, isort, mypy) to keep a non-trivial codebase maintainable.
+
+## Future Improvements
+
+* Add **rate limiting** to protect the API in production.
+* Deliver **explicit citations** and document sources directly in the UI for better transparency.
+* Implement **response streaming** from the backend for a more responsive chat experience.
+* Tighten **CORS configuration** and environment isolation (dev/stage/prod S3 buckets and indexes).
+
 ## Setup & Usage
 
 ### Prerequisites
@@ -579,34 +608,6 @@ npm run build
   "session_id": "uuid-string"
 }
 ```
-
-## UI Screenshots
-Home Page:
-
-![UI Screenshot of the Legal RAG Chatbot](/Legal_RAG_UI_screenshot.png)
-
-After sending a message:
-
-![UI Screenshot of the Legal RAG Chatbot](/Legal_RAG_UI_screenshot_2.png)
-
-Response:
-
-![UI Screenshot of the Legal RAG Chatbot](/Legal_RAG_UI_screenshot_3.png)
-
-## What I Learned
-
-* How to design and ship a **production-ready RAG system** that combines OpenAI, Pinecone, and AWS serverless components.
-* How to build a **dual-index retrieval pipeline** that merges results from legal documents and FAQs into a unified context.
-* How to structure a project with **clear separation of concerns**: ingestion, serving (Lambda), and presentation (React frontend).
-* How to implement **document ingestion pipelines** for PDFs and DOCX, including text extraction, chunking, and embedding.
-* How to use **pytest and modern Python tooling** (Black, isort, mypy) to keep a non-trivial codebase maintainable.
-
-## Future Improvements
-
-* Add **rate limiting** to protect the API in production.
-* Deliver **explicit citations** and document sources directly in the UI for better transparency.
-* Implement **response streaming** from the backend for a more responsive chat experience.
-* Tighten **CORS configuration** and environment isolation (dev/stage/prod S3 buckets and indexes).
 
 ## License
 
