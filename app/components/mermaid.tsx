@@ -91,10 +91,12 @@ export default function Mermaid({ chart }: { chart: string }) {
 		<>
 			{/* Normal view with expand button */}
 			<div className="relative my-8 group">
+				{/* rome-ignore lint/a11y/useKeyWithClickEvents: Keyboard users can use the expand button */}
 				<div
 					ref={containerRef}
 					className="overflow-x-auto bg-zinc-900 p-6 rounded-lg cursor-pointer hover:bg-zinc-800 transition-colors border border-zinc-800 hover:border-zinc-700"
 					onClick={() => setIsExpanded(true)}
+					// rome-ignore lint/security/noDangerouslySetInnerHtml: Mermaid generates safe SVG
 					dangerouslySetInnerHTML={{ __html: svg }}
 				/>
 				<button
