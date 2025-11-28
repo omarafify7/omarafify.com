@@ -7,6 +7,7 @@ interface SkillIconProps {
   name: string;
   icon: string;
   iconType?: string;
+  // rome-ignore lint/suspicious/noExplicitAny: Generic icon component
   customIcon?: React.ComponentType<any>;
 }
 
@@ -19,7 +20,7 @@ const getIconComponentName = (iconSlug: string): string => {
     .replace(/([a-z])([A-Z])/g, "$1-$2") // Handle camelCase
     .split(/[-_]/)
     .filter(Boolean);
-  
+
   const capitalized = parts.map(
     (part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
   );
@@ -27,7 +28,7 @@ const getIconComponentName = (iconSlug: string): string => {
 };
 
 // Helper function to get icon URL for fallback
-const getIconUrl = (iconName: string, iconType: string = "simpleicons") => {
+const getIconUrl = (iconName: string, iconType = "simpleicons") => {
   if (iconType === "devicon") {
     return `https://cdn.jsdelivr.net/gh/devicons/devicon/icons/${iconName}/${iconName}-original.svg`;
   }
@@ -56,7 +57,7 @@ export function SkillIcon({
             className="w-6 h-6 object-contain"
             loading="lazy"
           />
-          
+
           {/* Previous implementation with theme-based switching (commented for potential future use)
           <picture>
             <source
@@ -77,7 +78,7 @@ export function SkillIcon({
         {/* Tooltip */}
         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-zinc-900 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-20 border border-zinc-700">
           {name}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 w-2 h-2 bg-zinc-900 rotate-45 border-r border-b border-zinc-700"></div>
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 w-2 h-2 bg-zinc-900 rotate-45 border-r border-b border-zinc-700" />
         </div>
       </div>
     );
@@ -100,7 +101,7 @@ export function SkillIcon({
         {/* Tooltip */}
         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-zinc-900 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-20 border border-zinc-700">
           {name}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 w-2 h-2 bg-zinc-900 rotate-45 border-r border-b border-zinc-700"></div>
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 w-2 h-2 bg-zinc-900 rotate-45 border-r border-b border-zinc-700" />
         </div>
       </div>
     );
@@ -116,7 +117,7 @@ export function SkillIcon({
         {/* Tooltip */}
         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-zinc-900 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-20 border border-zinc-700">
           {name}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 w-2 h-2 bg-zinc-900 rotate-45 border-r border-b border-zinc-700"></div>
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 w-2 h-2 bg-zinc-900 rotate-45 border-r border-b border-zinc-700" />
         </div>
       </div>
     );
@@ -125,6 +126,7 @@ export function SkillIcon({
   // Try to use React component from @icons-pack/react-simple-icons
   if (iconType === "simpleicons") {
     const iconComponentName = getIconComponentName(icon);
+    // rome-ignore lint/suspicious/noExplicitAny: Dynamic access to SimpleIcons
     const IconComponent = (SimpleIcons as any)[iconComponentName];
 
     if (IconComponent) {
@@ -136,7 +138,7 @@ export function SkillIcon({
           {/* Tooltip */}
           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-zinc-900 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-20 border border-zinc-700">
             {name}
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 w-2 h-2 bg-zinc-900 rotate-45 border-r border-b border-zinc-700"></div>
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 w-2 h-2 bg-zinc-900 rotate-45 border-r border-b border-zinc-700" />
           </div>
         </div>
       );
@@ -146,7 +148,7 @@ export function SkillIcon({
   // Fallback to CDN image with multiple fallback sources
   const [imageError, setImageError] = React.useState(false);
   const [fallbackIndex, setFallbackIndex] = React.useState(0);
-  
+
   // Multiple fallback sources for better reliability
   const fallbackSources = [
     getIconUrl(icon, iconType), // Primary: Simple Icons CDN
@@ -186,7 +188,7 @@ export function SkillIcon({
       {/* Tooltip */}
       <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-zinc-900 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-20 border border-zinc-700">
         {name}
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 w-2 h-2 bg-zinc-900 rotate-45 border-r border-b border-zinc-700"></div>
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 w-2 h-2 bg-zinc-900 rotate-45 border-r border-b border-zinc-700" />
       </div>
     </div>
   );

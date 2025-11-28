@@ -1,7 +1,15 @@
 import { PropsWithChildren } from "react";
 
 // This file is required to use MDX in `app` directory.
-export function useMDXComponents(components: any): any {
+import { type ComponentType, type ReactNode } from "react";
+
+// rome-ignore lint/suspicious/noExplicitAny: MDX components type
+type MDXComponents = Record<string, ComponentType<any>> & {
+	// rome-ignore lint/suspicious/noExplicitAny: MDX components type
+	[key: string]: any;
+};
+
+export function useMDXComponents(components: MDXComponents): MDXComponents {
 	return {
 		// Allows customizing built-in components, e.g. to add styling.
 		h1: ({ children }: PropsWithChildren) => (

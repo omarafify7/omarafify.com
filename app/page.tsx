@@ -65,6 +65,9 @@ export default function Home() {
         <h2 className="text-sm text-zinc-500 ">
           Cloud & ML-focused Computer Engineer building data intensive systems.
         </h2>
+        <h2 className="text-sm text-zinc-500 ">
+          Toronto, Canada.
+        </h2>
       </div>
 
       <nav className="my-5 animate-fade-in" style={{ animationDuration: `${animationDuration}s` }}>

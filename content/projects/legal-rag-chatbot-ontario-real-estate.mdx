@@ -147,7 +147,7 @@ graph TB
     EMBEDDER -->|Store Vectors| INDEX_DOCS
     EMBEDDER -->|Store Vectors| INDEX_FAQS
     
-    style UI fill:#61dafb,stroke:#333,stroke-width:2px
+    style UI fill:#61dafb,stroke:#333,stroke-width:2px,color:#111
     style OPENAI fill:#10a37f,stroke:#333,stroke-width:2px
     style PINECONE fill:#5c4ee5,stroke:#333,stroke-width:2px
     style S3_DOCS fill:#569a31,stroke:#333,stroke-width:2px
@@ -200,7 +200,7 @@ graph LR
     INDEX_SETUP -.->|Uses config| CONSTANTS
     QUERY_UTIL -.->|Uses config| CONSTANTS
     
-    style CONSTANTS fill:#87CEEB
+    style CONSTANTS fill:#87CEEB,color:#111
 ```
 
 ### Frontend State Management
