@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import React, { useState, useEffect } from "react";
-import Particles from "./components/particles";
+const Particles = dynamic(() => import("./components/particles"), {
+  ssr: false,
+});
 import { SkillIcon } from "./components/skill-icon";
 import { techSkills } from "./data/tech-skills";
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -50,6 +53,7 @@ export default function Home() {
           width={200}
           height={200}
           className="rounded-full object-cover"
+          priority
         />
       </div>
       <h1 className="py-2 px-0.5 z-10 text-4xl text-transparent duration-1000 bg-white cursor-default text-edge-outline animate-title font-display sm:text-6xl md:text-9xl whitespace-nowrap bg-clip-text ">
