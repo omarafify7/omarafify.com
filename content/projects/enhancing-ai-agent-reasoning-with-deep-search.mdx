@@ -1,0 +1,71 @@
+---
+title: 'Enhancing AI Agent "Reasoning" with Deep Search'
+description: "Optimizing the Model Context Protocol (MCP) for Autonomous Research"
+date: "2025-12-30"
+published: true
+PR: "https://github.com/garylab/serper-mcp-server/pull/4"
+repository: "garylab/serper-mcp-server"
+tier: "B"
+featured: true
+category:
+  - Agentic
+  - MCP
+  - Python
+techStack:
+  - Python
+  - MCP
+  - Serper API
+  - Asyncio
+---
+
+<div align="center">
+
+# Enhancing AI Agent "Reasoning" with Deep Search
+
+### Optimizing the Model Context Protocol (MCP) for Autonomous Research
+
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![MCP](https://img.shields.io/badge/MCP-Protocol-black?style=for-the-badge&logo=anthropic&logoColor=white)](https://modelcontextprotocol.io/)
+[![Asyncio](https://img.shields.io/badge/Asyncio-Concurrency-green?style=for-the-badge&logo=python&logoColor=white)](https://docs.python.org/3/library/asyncio.html)
+[![Serper](https://img.shields.io/badge/Serper-Search%20API-blue?style=for-the-badge&logo=google&logoColor=white)](https://serper.dev/)
+
+A contribution to the open-source Serper MCP Server that enhances autonomous research capabilities by implementing parallel execution, query expansion, and context optimization.
+
+[View Pull Request](https://github.com/garylab/serper-mcp-server/pull/4) • [Repository](https://github.com/garylab/serper-mcp-server)
+
+</div>
+
+## The Problem
+
+While building a local autonomous developer team, I noticed my "Researcher Agent" was inefficient. It would hallucinate details about complex topics (like hardware specs) or waste time running sequential searches, creating a bottleneck in the workflow.
+
+## The Solution
+
+I contributed a `deep_research` tool to the open-source Serper MCP Server. Instead of a simple keyword lookup, this tool transforms the search process:
+
+### 1. Expands the Query
+
+Automatically generates three variations of the user's prompt to cover different aspects of the request:
+
+- **Technical**: Targeted at specifications and engineering details.
+- **Community/Social**: Looks for discussions, reviews, and real-world experiences.
+- **Official Documentation**: Prioritizes manuals, whitepapers, and official specs.
+
+### 2. Parallels Execution
+
+Fires all three queries simultaneously using Python's `asyncio`, slashing wait times and maximizing throughput compared to sequential execution.
+
+### 3. Optimizes Context
+
+Filters and deduplicates the results before feeding them back to the LLM. This ensures the agent gets high-signal data without blowing up the token budget, reducing noise and cost.
+
+## Impact
+
+My local agents can now verify complex engineering specs (like "RTX 5090 vs 4090 memory bandwidth") in a single, verified step. This significantly improves the accuracy of my automated coding pipeline and reduces the rate of hallucinations for technical queries.
+
+## Tech Stack
+
+- **Python**: Core implementation language.
+- **Model Context Protocol (MCP)**: The standard for connecting AI models to external tools.
+- **Serper API**: Google Search API for retrieving web results.
+- **Asyncio**: For concurrent execution of search queries.
